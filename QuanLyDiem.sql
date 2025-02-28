@@ -180,3 +180,128 @@ SELECT
     dbo.DoStudentHaveScholarship(MaSV) AS HaveScholarship  
 FROM SINHVIEN;
 SELECT * FROM V_SinhVien_HocBong;
+
+
+-- Part 1: SQL Queries
+
+-- 1. List all students who were born in Ho Chi Minh City
+SELECT * FROM SINHVIEN WHERE NoiSinh = N'Tp HCM';
+
+-- 2. Retrieve the names of students, subjects, and their corresponding scores
+use QlyDiem
+
+SELECT SV.TenSV, MH.TenMH, KQ.Diem
+FROM SINHVIEN SV
+JOIN KETQUA KQ ON SV.MaSV = KQ.MaSV
+JOIN MONHOC MH ON KQ.MaMH = MH.MaMH;
+
+-- 3. Find students who have never taken an exam
+SELECT * FROM SINHVIEN
+WHERE MaSV NOT IN (SELECT DISTINCT MaSV FROM KETQUA);
+
+-- 4. Get the total number of students per department
+SELECT K.TenKhoa, COUNT(SV.MaSV) AS TotalStudents
+FROM SINHVIEN SV
+JOIN KHOA K ON SV.MaKH = K.MaKhoa
+GROUP BY K.TenKhoa;
+
+-- 5. Find the highest and lowest scores in each subject
+SELECT MH.TenMH, MAX(KQ.Diem) AS HighestScore, MIN(KQ.Diem) AS LowestScore
+FROM KETQUA KQ
+JOIN MONHOC MH ON KQ.MaMH = MH.MaMH
+GROUP BY MH.TenMH;
+
+-- Part 2: Stored Procedures
+
+-- 6. Stored Procedure: Get all subjects and scores for a student
+CREATE PROCEDURE usp_GetStudentScores
+    @MaSV CHAR(3)
+AS
+BEGIN
+    SELECT MH.TenMH, KQ.Diem
+    FROM KETQUA KQ
+    JOIN MONHOC MH ON KQ.MaMH = MH.MaMH
+    WHERE KQ.MaSV = @MaSV;
+END;
+
+-- 7. Stored Procedure: Increase scholarship by 10% for students with avg score >= 8.5
+CREATE PROCEDURE usp_UpdateScholarship
+AS
+BEGIN
+    UPDATE SINHVIEN
+    SET HocBong = HocBong * 1.1
+    WHERE MaSV IN (
+        SELECT MaSV
+        FROM KETQUA
+        GROUP BY MaSV
+        HAVING AVG(Diem) >= 8.5
+    );
+END;
+
+-- Part 3: User-Defined Functions
+
+-- 8. Scalar Function: Get average score of a student
+CREATE FUNCTION ufn_GetAverageScore(@MaSV CHAR(3))
+RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @AvgScore FLOAT;
+    SELECT @AvgScore = AVG(Diem) FROM KETQUA WHERE MaSV = @MaSV;
+    RETURN @AvgScore;
+END;
+
+-- 9. Table-Valued Function: Get students who scored above 9.0 in a subject
+CREATE FUNCTION ufn_GetTopStudents(@MaMH CHAR(2))
+RETURNS TABLE
+AS
+RETURN (
+    SELECT SV.MaSV, SV.TenSV, KQ.Diem
+    FROM SINHVIEN SV
+    JOIN KETQUA KQ ON SV.MaSV = KQ.MaSV
+    WHERE KQ.MaMH = @MaMH AND KQ.Diem > 9.0
+);
+
+-- Part 4: Triggers
+
+-- 10. Trigger: Prevent inserting a score below 0 or above 10
+CREATE TRIGGER trg_PreventLowScore
+ON KETQUA
+FOR INSERT
+AS
+BEGIN
+    IF EXISTS (SELECT * FROM inserted WHERE Diem < 0 OR Diem > 10)
+    BEGIN
+        RAISERROR ('Diem must be between 0 and 10', 16, 1);
+        ROLLBACK;
+    END;
+END;
+
+-- 11. Trigger: Update scholarship if avg score exceeds 9.0
+CREATE TRIGGER trg_UpdateScholarship
+ON KETQUA
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    UPDATE SINHVIEN
+    SET HocBong = HocBong * 1.2
+    WHERE MaSV IN (
+        SELECT MaSV FROM KETQUA
+        GROUP BY MaSV
+        HAVING AVG(Diem) > 9.0
+    );
+END;
+
+-- Bonus: Stored Procedure to delete a student only if they have no exam records
+CREATE PROCEDURE usp_DeleteStudent
+    @MaSV CHAR(3)
+AS
+BEGIN
+    IF EXISTS (SELECT * FROM KETQUA WHERE MaSV = @MaSV)
+    BEGIN
+        RAISERROR ('Cannot delete student with exam records', 16, 1);
+    END
+    ELSE
+    BEGIN
+        DELETE FROM SINHVIEN WHERE MaSV = @MaSV;
+    END;
+END;
