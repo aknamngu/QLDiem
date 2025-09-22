@@ -1,0 +1,30 @@
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.OutputEncoding = System.Text.Encoding.UTF8; // cho hiển thị tiếng Việt
+
+        // 1. Tạo mảng ngẫu nhiên 10 phần tử
+        Console.WriteLine("=== Tạo mảng ngẫu nhiên ===");
+        IntArray arr1 = new IntArray(10);
+        arr1.Output();
+
+        // 2. Tìm kiếm tuần tự
+        Console.WriteLine("\n=== Tìm kiếm tuần tự ===");
+        Console.Write("Nhập giá trị cần tìm: ");
+        int x = int.Parse(Console.ReadLine());
+        int pos1 = arr1.LinearSearch(x);
+        if (pos1 != -1) Console.WriteLine($"✅ Tìm thấy {x} tại vị trí {pos1}");
+        else Console.WriteLine($"❌ Không tìm thấy {x}");
+
+        // 3. Minh họa tìm kiếm tuần tự
+        Console.WriteLine("\n=== Minh họa tìm kiếm tuần tự ===");
+        arr1.LinearSearchTrace(x);
+
+        // 4. Tìm phần tử lớn nhất
+        int maxPos = arr1.FindMaxIndex();
+        Console.WriteLine($"\nPhần tử lớn nhất là {arr1.LinearSearch(arr1.LinearSearch(arr1.LinearSearch(arr1.LinearSearch(arr1.LinearSearchTrace(x)))))}");
+    }
+}
