@@ -1,0 +1,206 @@
+using System;
+
+public class IntArray
+{
+    private int[] arr;
+    public int Length { get; private set; }
+
+    // Default constructor
+    public IntArray()
+    {
+        arr = new int[0];
+        Length = 0;
+    }
+
+    // Constructor 1: tạo mảng ngẫu nhiên
+    public IntArray(int k)
+    {
+        if (k <= 0 || k > 1000000)
+        {
+            Console.WriteLine("❌ Kích thước mảng không hợp lệ!");
+            arr = new int[0];
+            Length = 0;
+            return;
+        }
+
+        Random rand = new Random();
+        arr = new int[k];
+        for (int i = 0; i < k; i++)
+            arr[i] = rand.Next(1, 201);
+        Length = k;
+    }
+
+    // Constructor 2: sao chép từ mảng có sẵn
+    public IntArray(int[] a)
+    {
+        if (a == null)
+        {
+            Console.WriteLine("❌ Mảng không được null!");
+            arr = new int[0];
+            Length = 0;
+            return;
+        }
+        arr = new int[a.Length];
+        Array.Copy(a, arr, a.Length);
+        Length = a.Length;
+    }
+
+    // Copy constructor
+    public IntArray(IntArray obj)
+    {
+        if (obj == null || obj.arr == null)
+        {
+            Console.WriteLine("❌ Đối tượng không hợp lệ!");
+            arr = new int[0];
+            Length = 0;
+            return;
+        }
+        arr = new int[obj.Length];
+        Array.Copy(obj.arr, arr, obj.Length);
+        Length = obj.Length;
+    }
+
+    // Nhập mảng
+    public void Input()
+    {
+        Console.Write("Nhập số phần tử: ");
+        int n = int.Parse(Console.ReadLine());
+        if (n <= 0 || n > 1000000)
+        {
+            Console.WriteLine("❌ Kích thước mảng không hợp lệ!");
+            arr = new int[0];
+            Length = 0;
+            return;
+        }
+
+        arr = new int[n];
+        for (int i = 0; i < n; i++)
+        {
+            Console.Write($"arr[{i}] = ");
+            arr[i] = int.Parse(Console.ReadLine());
+        }
+        Length = n;
+    }
+
+    // Xuất mảng
+    public void Output()
+    {
+        for (int i = 0; i < Length; i++)
+            Console.Write(arr[i] + " ");
+        Console.WriteLine();
+    }
+
+    // Tìm kiếm tuần tự
+    public int LinearSearch(int x)
+    {
+        for (int i = 0; i < Length; i++)
+            if (arr[i] == x) return i;
+        return -1;
+    }
+
+    // Tìm kiếm nhị phân
+    public int BinarySearch(int x)
+    {
+        int left = 0, right = Length - 1;
+        while (left <= right)
+        {
+            int mid = (left + right) / 2;
+            if (arr[mid] == x) return mid;
+            if (arr[mid] < x) left = mid + 1;
+            else right = mid - 1;
+        }
+        return -1;
+    }
+
+    // Tìm vị trí phần tử lớn nhất (cuối cùng nếu trùng)
+    public int FindMaxIndex()
+    {
+        if (Length == 0) return -1;
+        int maxVal = arr[0], pos = 0;
+        for (int i = 1; i < Length; i++)
+        {
+            if (arr[i] >= maxVal)
+            {
+                maxVal = arr[i];
+                pos = i;
+            }
+        }
+        return pos;
+    }
+
+    // Xoá phần tử x đầu tiên
+    public void DeleteFirst(int x)
+    {
+        int pos = LinearSearch(x);
+        if (pos == -1) return;
+
+        for (int i = pos; i < Length - 1; i++)
+            arr[i] = arr[i + 1];
+
+        Length--;
+        Array.Resize(ref arr, Length);
+    }
+
+    // Chèn x sau phần tử lớn nhất cuối cùng
+    public void InsertAfterMax(int x)
+    {
+        int pos = FindMaxIndex();
+        if (pos == -1) return;
+
+        Array.Resize(ref arr, Length + 1);
+
+        for (int i = Length; i > pos + 1; i--)
+            arr[i] = arr[i - 1];
+
+        arr[pos + 1] = x;
+        Length++;
+    }
+
+    // Minh họa tìm kiếm tuần tự
+    public int LinearSearchTrace(int x)
+    {
+        int comparisons = 0;
+        for (int i = 0; i < Length; i++)
+        {
+            comparisons++;
+            Console.WriteLine($"So sánh arr[{i}] = {arr[i]} với {x}");
+            if (arr[i] == x)
+            {
+                Console.WriteLine($"✅ Tìm thấy tại vị trí {i} sau {comparisons} lần so sánh.");
+                return i;
+            }
+        }
+        Console.WriteLine($"❌ Không tìm thấy sau {comparisons} lần so sánh.");
+        return -1;
+    }
+
+    // Minh họa tìm kiếm nhị phân
+    public int BinarySearchTrace(int x)
+    {
+        int left = 0, right = Length - 1, comparisons = 0;
+        while (left <= right)
+        {
+            int mid = (left + right) / 2;
+            comparisons++;
+            Console.WriteLine($"So sánh arr[{mid}] = {arr[mid]} với {x}");
+
+            if (arr[mid] == x)
+            {
+                Console.WriteLine($"✅ Tìm thấy tại vị trí {mid} sau {comparisons} lần so sánh.");
+                return mid;
+            }
+            if (arr[mid] < x)
+            {
+                Console.WriteLine($"arr[{mid}] = {arr[mid]} < {x} → Tìm bên phải.");
+                left = mid + 1;
+            }
+            else
+            {
+                Console.WriteLine($"arr[{mid}] = {arr[mid]} > {x} → Tìm bên trái.");
+                right = mid - 1;
+            }
+        }
+        Console.WriteLine($"❌ Không tìm thấy sau {comparisons} lần so sánh.");
+        return -1;
+    }
+}
