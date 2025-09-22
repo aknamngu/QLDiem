@@ -1,0 +1,68 @@
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.OutputEncoding = System.Text.Encoding.UTF8; // hỗ trợ tiếng Việt
+
+        // =============================
+        // 1. Tạo objA ngẫu nhiên
+        // =============================
+        Console.Write("Nhập số phần tử k cho mảng objA: ");
+        int k = int.Parse(Console.ReadLine());
+        IntArray objA = new IntArray(k);
+
+        // 2. Xem các giá trị trong objA
+        Console.WriteLine("\nMảng objA phát sinh ngẫu nhiên:");
+        objA.Output();
+
+        // 3. Tìm kiếm tuần tự trong objA
+        Console.Write("\nNhập giá trị cần tìm trong objA: ");
+        int x = int.Parse(Console.ReadLine());
+        int posLinear = objA.LinearSearch(x);
+        if (posLinear != -1)
+            Console.WriteLine($"✅ Tìm thấy {x} tại vị trí {posLinear} (tìm kiếm tuần tự)");
+        else
+            Console.WriteLine($"❌ Không tìm thấy {x} trong objA");
+
+        // =============================
+        // 4. Tạo objB với k phần tử tăng dần
+        // =============================
+        Console.Write("\nNhập số phần tử k cho mảng objB (có thứ tự tăng dần): ");
+        int m = int.Parse(Console.ReadLine());
+        int[] sortedArr = new int[m];
+        Console.WriteLine("Nhập các phần tử của objB (theo thứ tự tăng dần):");
+        for (int i = 0; i < m; i++)
+        {
+            Console.Write($"objB[{i}] = ");
+            sortedArr[i] = int.Parse(Console.ReadLine());
+        }
+        IntArray objB = new IntArray(sortedArr);
+
+        Console.WriteLine("\nMảng objB:");
+        objB.Output();
+
+        // 5. Tìm kiếm nhị phân trong objB
+        Console.Write("\nNhập giá trị cần tìm trong objB: ");
+        int y = int.Parse(Console.ReadLine());
+        int posBinary = objB.BinarySearch(y);
+        if (posBinary != -1)
+            Console.WriteLine($"✅ Tìm thấy {y} tại vị trí {posBinary} (tìm kiếm nhị phân)");
+        else
+            Console.WriteLine($"❌ Không tìm thấy {y} trong objB");
+
+        // =============================
+        // 6. So sánh minh họa tuần tự và nhị phân
+        // =============================
+        Console.WriteLine("\n=== So sánh minh họa tìm kiếm trong objB (dãy có thứ tự tăng dần) ===");
+        Console.Write("Nhập giá trị cần so sánh tìm kiếm: ");
+        int z = int.Parse(Console.ReadLine());
+
+        Console.WriteLine("\n👉 Tìm kiếm tuần tự (Linear Search):");
+        objB.LinearSearchTrace(z);
+
+        Console.WriteLine("\n👉 Tìm kiếm nhị phân (Binary Search):");
+        objB.BinarySearchTrace(z);
+    }
+}
